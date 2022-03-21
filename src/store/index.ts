@@ -1,12 +1,28 @@
-import { createStore } from 'vuex'
+import { defineStore } from 'pinia'
 
-export default createStore({
-  state: {
-  },
-  mutations: {
+interface Message { name: string, message: string }
+
+interface State {
+  name: string,
+  msg: Array<{ name: string, message: string }>,
+}
+
+export const useStore = defineStore('main', {
+  state: (): State => ({
+    name: '',
+    msg: []
+  }),
+  getters: {
+    getName: (state) => state.name,
+    getMessages: (state) => state.msg
   },
   actions: {
-  },
-  modules: {
+    setName (name: string) {
+      this.name = name
+    },
+    pushNewMessage (obj: Message) {
+      this.msg.push(obj)
+    }
   }
+
 })
