@@ -7,13 +7,24 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component'
 import Main from './views/Main.vue'
+import { useStore } from './store/index'
 
 @Options({
   props: {},
   components: { Main },
   computed: {}
 })
-export default class App extends Vue {}
+export default class App extends Vue {
+  private store = useStore();
+
+  mounted () {
+    const username = localStorage.getItem('username')
+    if (username != null) {
+      this.store.setName(username)
+      this.$router.push('/chat')
+    }
+  }
+}
 </script>
 
 <style lang="scss">

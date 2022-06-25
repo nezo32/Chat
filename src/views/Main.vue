@@ -3,7 +3,7 @@
     <div class="cringe">
       <div>
         <div class="message" v-for="obj in all" :key="obj">
-          <p>{{ obj.name }}</p>
+          <p>{{ obj.username }} :</p>
           <p class="message-text" v-html="obj.message"></p>
         </div>
       </div>
@@ -29,11 +29,14 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component'
-import { useStore } from '../store/index'
+import { useStore, Message } from '../store/index'
 import { w3cwebsocket } from 'websocket'
 
+import axios from 'axios'
+
+// socket-chat.lnik801l.tech
 const Websocket = w3cwebsocket
-const client = new Websocket('ws://localhost:30/', 'echo-protocol')
+const client = new Websocket('ws://localhost:30', 'echo-protocol')
 client.onopen = () => {
   console.log('connected')
 }
@@ -45,7 +48,10 @@ let succ = false
   computed: {}
 })
 export default class Main extends Vue {
-  mounted () {
+  private store = useStore();
+  private all = this.store.getMessages;
+
+  async mounted () {
     const store = useStore()
     const smth = document.getElementById('input') as HTMLElement
     smth.addEventListener('keypress', (e) => {
@@ -54,28 +60,32 @@ export default class Main extends Vue {
         succ = true
       }
     })
+    const formated = (await axios.get('http://localhost:30/'))
+      .data as Array<Message>
+    formated.forEach((el) => {
+      el.message = el.message.replaceAll('\n', '<br />')
+    })
+    store.msgConcat(formated)
+    this.all = this.store.getMessages
     client.onmessage = (res) => {
       console.log(res)
       const firstParse = JSON.parse(res.data as string)
-      console.log(firstParse)
       const secondParse = JSON.parse(firstParse.toString())
-      console.log(secondParse)
 
       // console.log("action: ", smt.message.replace("\n", "</br>"));
-      secondParse.message = secondParse.message.replaceAll('\n', '</br>')
+      secondParse.message = secondParse.message.replaceAll('\n', '<br />')
       store.pushNewMessage(secondParse)
     }
   }
 
-  public message!: string;
+  public message = '';
 
-  private store = useStore();
-  private all = this.store.getMessages;
+  // private apiclient = express();
 
   private tmp (msg: string, variable: boolean) {
     if ((msg !== undefined && succ) || !variable) {
       const temp = {
-        name: this.store.getName + ': ',
+        username: this.store.getName,
         message: msg
       }
       if (temp.message.length !== 0) {

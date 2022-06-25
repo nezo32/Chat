@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia'
 
-interface Message { name: string, message: string }
+export interface Message { id: number, username: string, message: string }
 
 interface State {
   name: string,
-  msg: Array<{ name: string, message: string }>,
+  msg: Array<Message>,
 }
 
 export const useStore = defineStore('main', {
@@ -22,6 +22,9 @@ export const useStore = defineStore('main', {
     },
     pushNewMessage (obj: Message) {
       this.msg.push(obj)
+    },
+    msgConcat (inputArray: Array<Message>) {
+      this.msg = this.msg.concat(inputArray, this.msg)
     }
   }
 

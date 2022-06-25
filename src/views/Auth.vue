@@ -19,6 +19,7 @@ export default class Auth extends Vue {
   private name!: string;
   private hui () {
     this.store.setName(this.name)
+    localStorage.setItem('username', this.name)
     this.$router.push('/chat')
   }
 }
